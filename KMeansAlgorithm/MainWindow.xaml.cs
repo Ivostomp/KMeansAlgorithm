@@ -24,6 +24,7 @@ namespace KMeansAlgorithm
         private List<DataPoint> _DataPoints { get; set; } = new List<DataPoint>();
         private List<ClusterPoint> _Clusters { get; set; } = new List<ClusterPoint>();
 
+        private const int pointSize = 8;
         private System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
 
         public Dictionary<int, Color> _ClusterColors = new Dictionary<int, Color>() {
@@ -43,7 +44,7 @@ namespace KMeansAlgorithm
 
         };
 
-        private int _NrOfSections = 6;
+        private int _NrOfSections = 2;
         private int _MinPoints = 200;
         private int _MaxPoints = 250;
 
@@ -61,10 +62,11 @@ namespace KMeansAlgorithm
             this.btnStart.Click += BtnStart_Click;
             this.btnResetDataPoints.Click += BtnResetDataPoints_Click;
             this.btnResetCluster.Click += BtnResetCluster_Click;
-
+            this.btnGen.Click += BtnGen_Click;
             _timer.Interval = _GenSpeed;
             _timer.Tick += _timer_Tick;
         }
+
 
         private void GeneratePoints() {
             _DataPoints.Clear();
@@ -86,16 +88,17 @@ namespace KMeansAlgorithm
                 var y = rndCoordinates.Next(5, 495);
 
                 //Console.WriteLine("=============");
-                var dPoint = new DataPoint(x, y, 10, true);
+                var dPoint = new DataPoint(x, y, pointSize, true);
                 while (_DataPoints.Any(a => a.HasCollision(dPoint))) {
                     x = rndCoordinates.Next(5, 495);
                     Thread.Sleep(1);
                     y = rndCoordinates.Next(5, 495);
-                    dPoint = new DataPoint(x, y, 10, true);
+                    dPoint = new DataPoint(x, y, pointSize, true);
                     if (tries >= 10) {
                         succes = false;
                         break;
                     }
+                    tries++;
                 }
 
                 if (succes) {
@@ -170,8 +173,8 @@ namespace KMeansAlgorithm
                 foreach (var dp in pointsincluster) {
                     var line = new Line();
 
-                    SolidColorBrush fillColorBrush = new SolidColorBrush();
-                    fillColorBrush.Color = cl.FillColor;
+                    var fillColorBrush = new SolidColorBrush();
+                    fillColorBrush.Color = cl.BorderColor;
 
                     line.Stroke = fillColorBrush;
                     line.StrokeThickness = 1;
@@ -194,7 +197,8 @@ namespace KMeansAlgorithm
             _timer.Stop();
         }
 
-        private void AlgorithmStep() {
+        private bool AlgorithmStep() {
+            var finished = false;
             if (!stepSwitch) {
                 Console.WriteLine("Step");
                 foreach (var dp in _DataPoints) {
@@ -243,12 +247,13 @@ namespace KMeansAlgorithm
                     btnStart.Content = "Start";
                     stepSwitch = false;
                     Console.WriteLine("K-Means Finished");
+                    finished = true;
                 }
             }
 
-            
-
             stepSwitch = !stepSwitch;
+
+            return finished;
         }
 
         private Color RandomColor() {
@@ -304,5 +309,13 @@ namespace KMeansAlgorithm
             RedrawGraphics();
         }
 
+        private void BtnGen_Click(object sender, RoutedEventArgs e) {
+            var finished = AlgorithmStep();
+            while (!finished) {
+                finished = AlgorithmStep();
+            }
+            RedrawGraphics();
+            Console.WriteLine("Jobs done...");
+        }
     }
 }

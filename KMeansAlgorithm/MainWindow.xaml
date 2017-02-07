@@ -21,6 +21,7 @@
                 <Button x:Name="btnResetCluster" Content="Reset Cluster" Width="250" />
             </StackPanel>
             <Button x:Name="btnStart" Content="Start" />
+            <Button x:Name="btnGen" Content="Quick gen" />
         </StackPanel>
 
     </Grid>

@@ -17,7 +17,7 @@ namespace KMeansAlgorithm
         public ClusterPoint(string key, double x, double y, double size, Color color) : base(x, y, size, false) {
             Key = key;
             BorderColor = color;
-            FillColor = color;
+            FillColor = Color.FromArgb(255, 255, 255, 255);
         }
 
         public bool HasMoved() {
